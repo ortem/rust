@@ -7,7 +7,7 @@ use crate::middle::region;
 use crate::ty::{self, DefIdTree, ParamConst, Ty, TyCtxt, TypeFoldable};
 use crate::ty::subst::{Kind, Subst, UnpackedKind};
 use crate::mir::interpret::ConstValue;
-use syntax::symbol::{keywords, Symbol};
+use syntax::symbol::{kw, Symbol};
 
 use rustc_target::spec::abi::Abi;
 use syntax::symbol::InternedString;
@@ -982,7 +982,7 @@ impl<F: fmt::Write> Printer<'gcx, 'tcx> for FmtPrinter<'_, 'gcx, 'tcx, F> {
             if self.tcx.sess.rust_2018() {
                 // We add the `crate::` keyword on Rust 2018, only when desired.
                 if SHOULD_PREFIX_WITH_CRATE.with(|flag| flag.get()) {
-                    write!(self, "{}", keywords::Crate.name())?;
+                    write!(self, "{}", kw::Crate)?;
                     self.empty_path = false;
                 }
             }
