@@ -322,7 +322,7 @@ fn compute_symbol_name(tcx: TyCtxt<'_, 'tcx, 'tcx>, instance: Instance<'tcx>) ->
         let _ = printer.write_str("{{vtable-shim}}");
     }
 
-    Symbol::intern(&printer.path.finish(hash)).as_interned_str()
+    InternedString::intern(&printer.path.finish(hash))
 }
 
 // Follow C++ namespace-mangling style, see
