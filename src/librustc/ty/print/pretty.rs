@@ -10,7 +10,6 @@ use crate::mir::interpret::ConstValue;
 use syntax::symbol::{keywords, Symbol};
 
 use rustc_target::spec::abi::Abi;
-use syntax::symbol::InternedString;
 
 use std::cell::Cell;
 use std::fmt::{self, Write as _};
@@ -818,7 +817,7 @@ pub struct FmtPrinterData<'a, 'gcx, 'tcx, F> {
     empty_path: bool,
     in_value: bool,
 
-    used_region_names: FxHashSet<InternedString>,
+    used_region_names: FxHashSet<Symbol>,
     region_index: usize,
     binder_depth: usize,
 
@@ -1142,14 +1141,16 @@ impl<F: fmt::Write> PrettyPrinter<'gcx, 'tcx> for FmtPrinter<'_, 'gcx, 'tcx, F> 
 
         match *region {
             ty::ReEarlyBound(ref data) => {
-                data.name != "" && data.name != "'_"
+                data.name != keywords::Invalid.name() &&
+                data.name != keywords::UnderscoreLifetime.name()
             }
 
             ty::ReLateBound(_, br) |
             ty::ReFree(ty::FreeRegion { bound_region: br, .. }) |
             ty::RePlaceholder(ty::Placeholder { name: br, .. }) => {
                 if let ty::BrNamed(_, name) = br {
-                    if name != "" && name != "'_" {
+                    if name != keywords::Invalid.name() &&
+                       name != keywords::UnderscoreLifetime.name() {
                         return true;
                     }
                 }
@@ -1205,7 +1206,7 @@ impl<F: fmt::Write> FmtPrinter<'_, '_, '_, F> {
         // `explain_region()` or `note_and_explain_region()`.
         match *region {
             ty::ReEarlyBound(ref data) => {
-                if data.name != "" {
+                if data.name != keywords::Invalid.name() {
                     p!(write("{}", data.name));
                     return Ok(self);
                 }
@@ -1214,7 +1215,8 @@ impl<F: fmt::Write> FmtPrinter<'_, '_, '_, F> {
             ty::ReFree(ty::FreeRegion { bound_region: br, .. }) |
             ty::RePlaceholder(ty::Placeholder { name: br, .. }) => {
                 if let ty::BrNamed(_, name) = br {
-                    if name != "" && name != "'_" {
+                    if name != keywords::Invalid.name() &&
+                       name != keywords::UnderscoreLifetime.name() {
                         p!(write("{}", name));
                         return Ok(self);
                     }
@@ -1283,12 +1285,12 @@ impl<F: fmt::Write> FmtPrinter<'_, 'gcx, 'tcx, F> {
     ) -> Result<Self, fmt::Error>
         where T: Print<'gcx, 'tcx, Self, Output = Self, Error = fmt::Error> + TypeFoldable<'tcx>
     {
-        fn name_by_region_index(index: usize) -> InternedString {
+        fn name_by_region_index(index: usize) -> Symbol {
             match index {
                 0 => Symbol::intern("'r"),
                 1 => Symbol::intern("'s"),
                 i => Symbol::intern(&format!("'t{}", i-2)),
-            }.as_interned_str()
+            }
         }
 
         // Replace any anonymous late-bound regions with named
@@ -1351,7 +1353,7 @@ impl<F: fmt::Write> FmtPrinter<'_, 'gcx, 'tcx, F> {
         where T: TypeFoldable<'tcx>
     {
 
-        struct LateBoundRegionNameCollector<'a>(&'a mut FxHashSet<InternedString>);
+        struct LateBoundRegionNameCollector<'a>(&'a mut FxHashSet<Symbol>);
         impl<'tcx> ty::fold::TypeVisitor<'tcx> for LateBoundRegionNameCollector<'_> {
             fn visit_region(&mut self, r: ty::Region<'tcx>) -> bool {
                 match *r {

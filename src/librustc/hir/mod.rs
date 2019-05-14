@@ -16,7 +16,7 @@ use crate::util::nodemap::{NodeMap, FxHashSet};
 use crate::mir::mono::Linkage;
 
 use errors::FatalError;
-use syntax_pos::{Span, DUMMY_SP, symbol::InternedString};
+use syntax_pos::{Span, DUMMY_SP};
 use syntax::source_map::Spanned;
 use rustc_target::spec::abi::Abi;
 use syntax::ast::{self, CrateSugar, Ident, Name, NodeId, AsmDialect};
@@ -609,9 +609,9 @@ impl Generics {
         own_counts
     }
 
-    pub fn get_named(&self, name: &InternedString) -> Option<&GenericParam> {
+    pub fn get_named(&self, name: Symbol) -> Option<&GenericParam> {
         for param in &self.params {
-            if *name == param.name.ident().as_interned_str() {
+            if name == param.name.ident().name {
                 return Some(param);
             }
         }

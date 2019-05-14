@@ -1701,7 +1701,7 @@ impl<'a, 'tcx> Clean<Generics> for (&'a ty::Generics,
         let stripped_typarams = gens.params.iter().filter_map(|param| match param.kind {
             ty::GenericParamDefKind::Lifetime => None,
             ty::GenericParamDefKind::Type { .. } => {
-                if param.name == keywords::SelfUpper.name().as_str() {
+                if param.name == keywords::SelfUpper.name() {
                     assert_eq!(param.index, 0);
                     return None;
                 }

@@ -4,7 +4,7 @@ use crate::traits;
 use crate::traits::project::Normalized;
 use crate::ty::fold::{TypeFoldable, TypeFolder, TypeVisitor};
 use crate::ty::{self, Lift, Ty, TyCtxt};
-use syntax::symbol::InternedString;
+use syntax::symbol::Symbol;
 
 use std::fmt;
 use std::rc::Rc;
@@ -261,11 +261,11 @@ impl fmt::Display for traits::QuantifierKind {
 /// for debug output in tests anyway.
 struct BoundNamesCollector {
     // Just sort by name because `BoundRegion::BrNamed` does not have a `BoundVar` index anyway.
-    regions: BTreeSet<InternedString>,
+    regions: BTreeSet<Symbol>,
 
     // Sort by `BoundVar` index, so usually this should be equivalent to the order given
     // by the list of type parameters.
-    types: BTreeMap<u32, InternedString>,
+    types: BTreeMap<u32, Symbol>,
 
     binder_index: ty::DebruijnIndex,
 }
@@ -312,8 +312,6 @@ impl<'tcx> TypeVisitor<'tcx> for BoundNamesCollector {
     }
 
     fn visit_ty(&mut self, t: Ty<'tcx>) -> bool {
-        use syntax::symbol::Symbol;
-
         match t.sty {
             ty::Bound(debruijn, bound_ty) if debruijn == self.binder_index => {
                 self.types.insert(
@@ -322,7 +320,7 @@ impl<'tcx> TypeVisitor<'tcx> for BoundNamesCollector {
                         ty::BoundTyKind::Param(name) => name,
                         ty::BoundTyKind::Anon => Symbol::intern(
                             &format!("^{}", bound_ty.var.as_u32())
-                        ).as_interned_str(),
+                        ),
                     }
                 );
             }
@@ -334,8 +332,6 @@ impl<'tcx> TypeVisitor<'tcx> for BoundNamesCollector {
     }
 
     fn visit_region(&mut self, r: ty::Region<'tcx>) -> bool {
-        use syntax::symbol::Symbol;
-
         match r {
             ty::ReLateBound(index, br) if *index == self.binder_index => {
                 match br {
@@ -346,7 +342,7 @@ impl<'tcx> TypeVisitor<'tcx> for BoundNamesCollector {
                     ty::BoundRegion::BrAnon(var) => {
                         self.regions.insert(Symbol::intern(
                             &format!("'^{}", var)
-                        ).as_interned_str());
+                        ));
                     }
 
                     _ => (),

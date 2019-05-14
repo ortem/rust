@@ -255,7 +255,7 @@ fn type_param_predicates<'a, 'tcx>(
     let param_owner_def_id = tcx.hir().local_def_id_from_hir_id(param_owner);
     let generics = tcx.generics_of(param_owner_def_id);
     let index = generics.param_def_id_to_index[&def_id];
-    let ty = tcx.mk_ty_param(index, tcx.hir().ty_param_name(param_id).as_interned_str());
+    let ty = tcx.mk_ty_param(index, tcx.hir().ty_param_name(param_id));
 
     // Don't look for bounds where the type parameter isn't in scope.
     let parent = if item_def_id == param_owner_def_id {
@@ -939,7 +939,7 @@ fn generics_of<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>, def_id: DefId) -> &'tcx ty
 
                     opt_self = Some(ty::GenericParamDef {
                         index: 0,
-                        name: keywords::SelfUpper.name().as_interned_str(),
+                        name: keywords::SelfUpper.name(),
                         def_id: tcx.hir().local_def_id_from_hir_id(param_id),
                         pure_wrt_drop: false,
                         kind: ty::GenericParamDefKind::Type {
@@ -984,7 +984,7 @@ fn generics_of<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>, def_id: DefId) -> &'tcx ty
         early_lifetimes
             .enumerate()
             .map(|(i, param)| ty::GenericParamDef {
-                name: param.name.ident().as_interned_str(),
+                name: param.name.ident().name,
                 index: own_start + i as u32,
                 def_id: tcx.hir().local_def_id_from_hir_id(param.hir_id),
                 pure_wrt_drop: param.pure_wrt_drop,
@@ -1052,7 +1052,7 @@ fn generics_of<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>, def_id: DefId) -> &'tcx ty
 
                 let param_def = ty::GenericParamDef {
                     index: type_start + i as u32,
-                    name: param.name.ident().as_interned_str(),
+                    name: param.name.ident().name,
                     def_id: tcx.hir().local_def_id_from_hir_id(param.hir_id),
                     pure_wrt_drop: param.pure_wrt_drop,
                     kind,
@@ -1082,7 +1082,7 @@ fn generics_of<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>, def_id: DefId) -> &'tcx ty
                 .enumerate()
                 .map(|(i, &arg)| ty::GenericParamDef {
                     index: type_start + i as u32,
-                    name: Symbol::intern(arg).as_interned_str(),
+                    name: Symbol::intern(arg),
                     def_id,
                     pure_wrt_drop: false,
                     kind: ty::GenericParamDefKind::Type {
@@ -1097,7 +1097,7 @@ fn generics_of<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>, def_id: DefId) -> &'tcx ty
             params.extend(upvars.iter().zip((dummy_args.len() as u32)..).map(|(_, i)| {
                 ty::GenericParamDef {
                     index: type_start + i,
-                    name: Symbol::intern("<upvar>").as_interned_str(),
+                    name: Symbol::intern("<upvar>"),
                     def_id,
                     pure_wrt_drop: false,
                     kind: ty::GenericParamDefKind::Type {
@@ -2055,7 +2055,7 @@ fn explicit_predicates_of<'a, 'tcx>(
         let region = tcx.mk_region(ty::ReEarlyBound(ty::EarlyBoundRegion {
             def_id: tcx.hir().local_def_id_from_hir_id(param.hir_id),
             index,
-            name: param.name.ident().as_interned_str(),
+            name: param.name.ident().name,
         }));
         index += 1;
 
@@ -2078,7 +2078,7 @@ fn explicit_predicates_of<'a, 'tcx>(
     // type parameter (e.g., `<T:Foo>`).
     for param in &ast_generics.params {
         if let GenericParamKind::Type { .. } = param.kind {
-            let name = param.name.ident().as_interned_str();
+            let name = param.name.ident().name;
             let param_ty = ty::ParamTy::new(index, name).to_ty(tcx);
             index += 1;
 
