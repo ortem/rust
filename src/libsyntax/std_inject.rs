@@ -2,7 +2,7 @@ use crate::ast;
 use crate::attr;
 use crate::edition::Edition;
 use crate::ext::hygiene::{Mark, SyntaxContext};
-use crate::symbol::{Symbol, keywords, sym};
+use crate::symbol::{Symbol, kw, sym};
 use crate::source_map::{ExpnInfo, MacroAttribute, dummy_spanned, hygiene, respan};
 use crate::ptr::P;
 use crate::tokenstream::TokenStream;
@@ -108,7 +108,7 @@ pub fn maybe_inject_crates_ref(
         vis: respan(span.shrink_to_lo(), ast::VisibilityKind::Inherited),
         node: ast::ItemKind::Use(P(ast::UseTree {
             prefix: ast::Path {
-                segments: iter::once(keywords::PathRoot.ident())
+                segments: iter::once(ast::Ident::with_empty_ctxt(kw::PathRoot))
                     .chain(
                         [name, "prelude", "v1"].iter().cloned()
                             .map(ast::Ident::from_str)
@@ -119,7 +119,7 @@ pub fn maybe_inject_crates_ref(
             span,
         })),
         id: ast::DUMMY_NODE_ID,
-        ident: keywords::Invalid.ident(),
+        ident: ast::Ident::invalid(),
         span,
         tokens: None,
     }));
