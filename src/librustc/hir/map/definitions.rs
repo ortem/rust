@@ -593,7 +593,7 @@ impl DefPathData {
             ImplTrait => "{{opaque}}",
         };
 
-        Symbol::intern(s).as_interned_str()
+        InternedString::intern(s)
     }
 
     pub fn to_string(&self) -> String {

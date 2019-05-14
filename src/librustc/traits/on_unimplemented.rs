@@ -250,7 +250,7 @@ impl<'a, 'gcx, 'tcx> OnUnimplementedFormatString {
                     Position::ArgumentNamed(s) if s == "from_desugaring" => (),
                     // So is `{A}` if A is a type parameter
                     Position::ArgumentNamed(s) => match generics.params.iter().find(|param|
-                        param.name == s
+                        param.name.as_str() == s
                     ) {
                         Some(_) => (),
                         None => {

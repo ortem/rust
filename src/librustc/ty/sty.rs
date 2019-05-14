@@ -22,7 +22,7 @@ use std::marker::PhantomData;
 use std::ops::Range;
 use rustc_target::spec::abi;
 use syntax::ast::{self, Ident};
-use syntax::symbol::{keywords, InternedString};
+use syntax::symbol::{keywords, Symbol};
 
 use serialize;
 use self::InferTy::*;
@@ -54,7 +54,7 @@ pub enum BoundRegion {
     ///
     /// The `DefId` is needed to distinguish free regions in
     /// the event of shadowing.
-    BrNamed(DefId, InternedString),
+    BrNamed(DefId, Symbol),
 
     /// Fresh bound identifiers created during GLB computations.
     BrFresh(u32),
@@ -1112,16 +1112,16 @@ pub type CanonicalPolyFnSig<'tcx> = Canonical<'tcx, Binder<FnSig<'tcx>>>;
          Hash, RustcEncodable, RustcDecodable, HashStable)]
 pub struct ParamTy {
     pub index: u32,
-    pub name: InternedString,
+    pub name: Symbol,
 }
 
 impl<'a, 'gcx, 'tcx> ParamTy {
-    pub fn new(index: u32, name: InternedString) -> ParamTy {
+    pub fn new(index: u32, name: Symbol) -> ParamTy {
         ParamTy { index, name: name }
     }
 
     pub fn for_self() -> ParamTy {
-        ParamTy::new(0, keywords::SelfUpper.name().as_interned_str())
+        ParamTy::new(0, keywords::SelfUpper.name())
     }
 
     pub fn for_def(def: &ty::GenericParamDef) -> ParamTy {
@@ -1136,7 +1136,7 @@ impl<'a, 'gcx, 'tcx> ParamTy {
         // FIXME(#50125): Ignoring `Self` with `index != 0` might lead to weird behavior elsewhere,
         // but this should only be possible when using `-Z continue-parse-after-error` like
         // `compile-fail/issue-36638.rs`.
-        self.name == keywords::SelfUpper.name().as_str() && self.index == 0
+        self.name == keywords::SelfUpper.name() && self.index == 0
     }
 }
 
@@ -1144,11 +1144,11 @@ impl<'a, 'gcx, 'tcx> ParamTy {
          Eq, PartialEq, Ord, PartialOrd, HashStable)]
 pub struct ParamConst {
     pub index: u32,
-    pub name: InternedString,
+    pub name: Symbol,
 }
 
 impl<'a, 'gcx, 'tcx> ParamConst {
-    pub fn new(index: u32, name: InternedString) -> ParamConst {
+    pub fn new(index: u32, name: Symbol) -> ParamConst {
         ParamConst { index, name }
     }
 
@@ -1321,7 +1321,7 @@ impl<'tcx> serialize::UseSpecializedDecodable for Region<'tcx> {}
 pub struct EarlyBoundRegion {
     pub def_id: DefId,
     pub index: u32,
-    pub name: InternedString,
+    pub name: Symbol,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, RustcEncodable, RustcDecodable)]
@@ -1385,7 +1385,7 @@ pub struct BoundTy {
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, RustcEncodable, RustcDecodable)]
 pub enum BoundTyKind {
     Anon,
-    Param(InternedString),
+    Param(Symbol),
 }
 
 impl_stable_hash_for!(struct BoundTy { var, kind });

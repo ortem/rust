@@ -1,4 +1,4 @@
-use syntax::symbol::InternedString;
+use syntax::symbol::Symbol;
 use syntax_pos::Span;
 use crate::ty::{self, Ty, TyVid};
 
@@ -43,7 +43,7 @@ pub enum TypeVariableOrigin {
     MiscVariable(Span),
     NormalizeProjectionType(Span),
     TypeInference(Span),
-    TypeParameterDefinition(Span, InternedString),
+    TypeParameterDefinition(Span, Symbol),
 
     /// one of the upvars or closure kind parameters in a `ClosureSubsts`
     /// (before it has been determined)

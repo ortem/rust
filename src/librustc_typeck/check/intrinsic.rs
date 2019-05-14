@@ -80,7 +80,7 @@ pub fn intrisic_operation_unsafety(intrinsic: &str) -> hir::Unsafety {
 /// and in libcore/intrinsics.rs
 pub fn check_intrinsic_type<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>,
                                       it: &hir::ForeignItem) {
-    let param = |n| tcx.mk_ty_param(n, Symbol::intern(&format!("P{}", n)).as_interned_str());
+    let param = |n| tcx.mk_ty_param(n, Symbol::intern(&format!("P{}", n)));
     let name = it.ident.as_str();
 
     let mk_va_list_ty = || {
@@ -397,7 +397,7 @@ pub fn check_intrinsic_type<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>,
 pub fn check_platform_intrinsic_type<'a, 'tcx>(tcx: TyCtxt<'a, 'tcx, 'tcx>,
                                                it: &hir::ForeignItem) {
     let param = |n| {
-        let name = Symbol::intern(&format!("P{}", n)).as_interned_str();
+        let name = Symbol::intern(&format!("P{}", n));
         tcx.mk_ty_param(n, name)
     };
 

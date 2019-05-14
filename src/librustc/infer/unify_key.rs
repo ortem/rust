@@ -3,7 +3,7 @@ use crate::mir::interpret::ConstValue;
 use rustc_data_structures::unify::{NoError, EqUnifyValue, UnifyKey, UnifyValue, UnificationTable};
 use rustc_data_structures::unify::InPlace;
 use syntax_pos::{Span, DUMMY_SP};
-use syntax::symbol::InternedString;
+use syntax::symbol::Symbol;
 
 use std::cmp;
 use std::marker::PhantomData;
@@ -84,7 +84,7 @@ impl ToType for FloatVarValue {
 pub enum ConstVariableOrigin {
     MiscVariable(Span),
     ConstInference(Span),
-    ConstParameterDefinition(Span, InternedString),
+    ConstParameterDefinition(Span, Symbol),
     SubstitutionPlaceholder(Span),
 }
 

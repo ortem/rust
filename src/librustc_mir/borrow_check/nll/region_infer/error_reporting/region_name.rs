@@ -15,11 +15,11 @@ use rustc_errors::DiagnosticBuilder;
 use syntax::ast::Name;
 use syntax::symbol::keywords;
 use syntax_pos::Span;
-use syntax_pos::symbol::InternedString;
+use syntax_pos::symbol::Symbol;
 
 #[derive(Debug)]
 crate struct RegionName {
-    crate name: InternedString,
+    crate name: Symbol,
     crate source: RegionNameSource,
 }
 
@@ -60,8 +60,8 @@ impl RegionName {
     }
 
     #[allow(dead_code)]
-    crate fn name(&self) -> &InternedString {
-        &self.name
+    crate fn name(&self) -> Symbol {
+        self.name
     }
 
     crate fn highlight_region_name(
@@ -206,7 +206,7 @@ impl<'tcx> RegionInferenceContext<'tcx> {
         match error_region {
             ty::ReEarlyBound(ebr) => {
                 if ebr.has_name() {
-                    let span = self.get_named_span(tcx, error_region, &ebr.name);
+                    let span = self.get_named_span(tcx, error_region, ebr.name);
                     Some(RegionName {
                         name: ebr.name,
                         source: RegionNameSource::NamedEarlyBoundRegion(span)
@@ -217,13 +217,13 @@ impl<'tcx> RegionInferenceContext<'tcx> {
             }
 
             ty::ReStatic => Some(RegionName {
-                name: keywords::StaticLifetime.name().as_interned_str(),
+                name: keywords::StaticLifetime.name(),
                 source: RegionNameSource::Static
             }),
 
             ty::ReFree(free_region) => match free_region.bound_region {
                 ty::BoundRegion::BrNamed(_, name) => {
-                    let span = self.get_named_span(tcx, error_region, &name);
+                    let span = self.get_named_span(tcx, error_region, name);
                     Some(RegionName {
                         name,
                         source: RegionNameSource::NamedFreeRegion(span),
@@ -306,7 +306,7 @@ impl<'tcx> RegionInferenceContext<'tcx> {
         &self,
         tcx: TyCtxt<'_, '_, 'tcx>,
         error_region: &RegionKind,
-        name: &InternedString,
+        name: Symbol,
     ) -> Span {
         let scope = error_region.free_region_binding_scope(tcx);
         let node = tcx.hir().as_local_hir_id(scope).unwrap_or(hir::DUMMY_HIR_ID);
@@ -787,10 +787,10 @@ impl<'tcx> RegionInferenceContext<'tcx> {
 
     /// Creates a synthetic region named `'1`, incrementing the
     /// counter.
-    fn synthesize_region_name(&self, counter: &mut usize) -> InternedString {
+    fn synthesize_region_name(&self, counter: &mut usize) -> Symbol {
         let c = *counter;
         *counter += 1;
 
-        Name::intern(&format!("'{:?}", c)).as_interned_str()
+        Name::intern(&format!("'{:?}", c))
     }
 }

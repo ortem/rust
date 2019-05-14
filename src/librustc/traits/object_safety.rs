@@ -539,7 +539,7 @@ impl<'a, 'tcx> TyCtxt<'a, 'tcx, 'tcx> {
         // are implemented
         let unsized_self_ty: Ty<'tcx> = self.mk_ty_param(
             ::std::u32::MAX,
-            Name::intern("RustaceansAreAwesome").as_interned_str(),
+            Name::intern("RustaceansAreAwesome"),
         );
 
         // `Receiver[Self => U]`
