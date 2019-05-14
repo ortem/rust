@@ -1019,6 +1019,17 @@ pub struct LocalInternedString {
 }
 
 impl LocalInternedString {
+    /// Maps a string to its interned representation.
+    pub fn intern(string: &str) -> Self {
+        let string = with_interner(|interner| {
+            let symbol = interner.intern(string);
+            interner.strings[symbol.0.as_usize()]
+        });
+        LocalInternedString {
+            string: unsafe { std::mem::transmute::<&str, &str>(string) }
+        }
+    }
+
     pub fn as_interned_str(self) -> InternedString {
         InternedString {
             symbol: Symbol::intern(self.string)
@@ -1095,7 +1106,7 @@ impl fmt::Display for LocalInternedString {
 
 impl Decodable for LocalInternedString {
     fn decode<D: Decoder>(d: &mut D) -> Result<LocalInternedString, D::Error> {
-        Ok(Symbol::intern(&d.read_str()?).as_str())
+        Ok(LocalInternedString::intern(&d.read_str()?))
     }
 }
 
