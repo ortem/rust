@@ -1,5 +1,4 @@
 // ignore-freebsd: gdb package too new
-// only-cdb // "Temporarily" ignored on GDB/LLDB due to debuginfo tests being disabled, see PR 47155
 // ignore-android: FIXME(#10381)
 // compile-flags:-g
 // min-gdb-version: 7.7
@@ -44,25 +43,19 @@
 // lldb-command: run
 
 // lldb-command: print slice
-// lldb-check:[...]$0 = &[0, 1, 2, 3]
+// lldb-check:[...]$0 = size=4 { [0] = 0 [1] = 1 [2] = 2 [3] = 3 }
 
 // lldb-command: print vec
-// lldb-check:[...]$1 = vec![4, 5, 6, 7]
+// lldb-check:[...]$1 = size=4 { [0] = 4 [1] = 5 [2] = 6 [3] = 7 }
 
 // lldb-command: print str_slice
-// lldb-check:[...]$2 = "IAMA string slice!"
+// lldb-check:[...]$2 = "IAMA string slice!"[...]
 
 // lldb-command: print string
-// lldb-check:[...]$3 = "IAMA string!"
+// lldb-check:[...]$3 = "IAMA string!"[...]
 
-// lldb-command: print some
-// lldb-check:[...]$4 = Some(8)
-
-// lldb-command: print none
-// lldb-check:[...]$5 = None
-
-// lldb-command: print os_string
-// lldb-check:[...]$6 = "IAMA OS string 😃"[...]
+// lldb-command: print os_string_no_unicode
+// lldb-check:[...]$4 = "IAMA OS string"[...]
 
 
 // === CDB TESTS ==================================================================================
@@ -137,6 +130,7 @@ fn main() {
 
     // OsString
     let os_string = OsString::from("IAMA OS string \u{1F603}");
+    let os_string_no_unicode = OsString::from("IAMA OS string");
 
     // Option
     let some = Some(8i16);
